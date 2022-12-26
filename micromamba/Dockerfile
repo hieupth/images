@@ -1,10 +1,6 @@
-# Required build arguments
-ARG MAMBA_VERSION=1.1.0
-ARG MAMBA_USER=mambauser
-ARG MAMBA_USER_ID=1000
-ARG MAMBA_USER_GID=1000
-
 FROM ubuntu:latest as PREBUILD
+# Mamba version
+ARG MAMBA_VERSION=1.1.0
 # Prevents errors in a pipeline from being masked
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install required packages
@@ -21,7 +17,11 @@ RUN test "$TARGETARCH" = 'amd64' && export ARCH='64'; \
     tar -xj -C "/tmp" "bin/micromamba"
 
 FROM ubuntu:latest
-# Define environments
+# Build arguments
+ARG MAMBA_USER=mambauser
+ARG MAMBA_USER_ID=1000
+ARG MAMBA_USER_GID=1000
+# Build environments
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV ENV_NAME="base"
 ENV MAMBA_ROOT_PREFIX="/opt/conda"
