@@ -1,3 +1,6 @@
+ARG CUDA=11.8.0
+ARG FLAVOR=runtime
+
 FROM ubuntu:20.04 as PREBUILD
 # Mamba version
 ARG MAMBA_VERSION=1.1.0
@@ -16,9 +19,6 @@ RUN test "$TARGETARCH" = 'amd64' && export ARCH='64'; \
     curl -L "https://micromamba.snakepit.net/api/micromamba/linux-${ARCH}/${MAMBA_VERSION}" | \
     tar -xj -C "/tmp" "bin/micromamba"
 
-# Nvidia version
-ARG CUDA=11.8.0
-ARG FLAVOR=runtime
 # Build from Nvidia's image
 FROM nvidia/cuda:${CUDA}-cudnn8-${FLAVOR}-ubuntu20.04
 # Build arguments
