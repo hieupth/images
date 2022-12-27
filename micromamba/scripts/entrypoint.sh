@@ -19,5 +19,5 @@ if [[ ! -v USER && $(id -u) -gt 0 ]]; then
     export HOME="/home/$USER"
 fi
 
-source _activate_current_env.sh
+source .activate.sh
 exec "$@"
