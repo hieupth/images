@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '*mambabook'
+
+jobs:
+  # Build image
+  build-cuda:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cuda: [112, 113, 114, 116, 118]
+        flavor: [runtime, devel]
+    steps:
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - 
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Build base image
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          context: "./mambabook/base"
+          file: "./mambabook/base/Dockerfile.cuda"
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mambabook:base-cu${{ matrix.cuda }}-${{ matrix.flavor }}
+          build-args: |
+            CUDA=${{ matrix.cuda }}
+            FLAVOR=${{ matrix.flavor }}
+      -
+        name: Build image
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          context: "./mambabook/book"
+          file: "./mambabook/book/Dockerfile.cuda"
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mambabook:cu${{ matrix.cuda }}-${{ matrix.flavor }}
+          build-args: |
+            CUDA=${{ matrix.cuda }}
+            FLAVOR=${{ matrix.flavor }}
+      - 
+        name: Update description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/mambabook
+          readme-filepath: ./mambabook/README.md
