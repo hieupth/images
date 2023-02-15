@@ -38,6 +38,11 @@ RUN apt-get update --yes && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
 
+# Install fd to improve chown performance with CHOWN_HOME_EXCLUDE option
+RUN wget https://github.com/sharkdp/fd/releases/download/v8.6.0/fd_8.6.0_amd64.deb && \
+    dpkg -i fd_8.6.0_amd64.deb && \
+    rm fd_8.6.0_amd64.deb
+
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
